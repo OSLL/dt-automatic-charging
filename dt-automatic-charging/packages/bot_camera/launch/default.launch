@@ -11,7 +11,7 @@
 
     <arg name="/camera/rect" default="true"/>
      <group if="$(arg /camera/rect)">
-         <remap from="bot_camera/car_cmd" to="joy_mapper_node/car_cmd"/>
+         <remap from="circle_drive/car_cmd" to="joy_mapper_node/car_cmd"/>
         <include file="$(find bot_camera)/launch/test.launch">
             <arg name="veh" value="$(arg veh)"/>
         </include>
