@@ -35,7 +35,7 @@ class MyNode(DTROS):
 
 if __name__ == '__main__':
     # create the node
-    node = MyNode(node_name='bot_camera')
+    node = MyNode(node_name='circle_drive')
     # run node
     node.run()
     # keep spinning
