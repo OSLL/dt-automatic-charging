@@ -47,12 +47,14 @@ ENV DT_LAUNCH_PATH "${LAUNCH_PATH}"
 ENV DT_LAUNCHER "${LAUNCHER}"
 
 # install apt dependencies
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F42ED6FBAB17C654
 COPY ./dependencies-apt.txt "${REPO_PATH}/"
 RUN dt-apt-install ${REPO_PATH}/dependencies-apt.txt
 
 # install python3 dependencies
 #COPY ./dependencies-py3.txt "${REPO_PATH}/"
 #RUN dt-pip3-install ${REPO_PATH}/dependencies-py3.txt
+RUN pip install dt-apriltags
 
 # copy the source code
 COPY ./packages "${REPO_PATH}/packages"
