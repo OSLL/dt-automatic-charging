@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="veh" doc="Name of vehicle. ex: megaman"/>
+    <arg name="param_file_name" default="default" doc="Specify a param file. ex:default." />
+    <arg name="robot_type" default="$(env ROBOT_TYPE)"
+         doc="The type of the robot (e.g., duckiebot, watchtower, traffic_light, ...)"/>
+    <arg name="robot_configuration" default="$(env ROBOT_CONFIGURATION)"
+         doc="The configuration of the robot (e.g., DB19, DB20, WT18, ...)"/>
+
+    <!-- ROS HTTP API: provides an HTTP API through which we can monitor the ROS network -->
+
+    <arg name="/camera/rect" default="true"/>
+     <group if="$(arg /camera/rect)">
+         <remap from="bot_camera/car_cmd" to="joy_mapper_node/car_cmd"/>
+        <include file="$(find bot_camera)/launch/test.launch">
+            <arg name="veh" value="$(arg veh)"/>
+        </include>
+    </group>
+
+</launch>
