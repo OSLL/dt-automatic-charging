@@ -8,6 +8,9 @@ import subprocess
 import sys
 from shutil import which
 
+# from utils.misc_utils import sanitize_hostname
+# from utils.networking_utils import get_duckiebot_ip
+
 __all__ = ["get_clean_env", "start_command_in_subprocess", "ask_confirmation", "check_program_dependency"]
 
 
@@ -85,6 +88,7 @@ if __name__ == '__main__':
     parser.add_argument('--branch', type=str, default='daffy')
     parser.add_argument('--bot_name', type=str, default='autobot03')
     parser.add_argument('--container_name', type=str, default='dts-automatic-charging')
+    parser.add_argument('--package-name', default='bot_camera')
     args = parser.parse_args()
     client = docker.from_env()
 
@@ -109,11 +113,9 @@ if __name__ == '__main__':
                                                 'mode': 'rw'}},
                  'network_mode': 'host',
                  'ports': {}}
-
     client.containers.run(**arguments)
     attach_cmd = "docker attach %s" % args.container_name
     try:
         start_command_in_subprocess(attach_cmd)
     except Exception as e:
         pass
-

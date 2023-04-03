@@ -13,7 +13,7 @@ dt-launchfile-init
 # NOTE: Use `dt-exec COMMAND` to run the main process (blocking process)
 
 # set module's health
-dt-set-module-healthy
+# dt-set-module-healthy
 
 # launching app
 dt-exec roslaunch bot_camera default.launch veh:="$VEHICLE_NAME"
