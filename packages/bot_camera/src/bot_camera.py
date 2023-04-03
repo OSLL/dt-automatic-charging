@@ -10,20 +10,25 @@ from sensor_msgs.msg import CompressedImage, Image
 from duckietown.dtros import DTROS, DTParam, NodeType, TopicType
 from cv_bridge import CvBridge
 import apriltag  # from dt_apriltags import Detector
-from duckietown_msgs.msg import Twist2DStamped, BoolStamped
+from duckietown_msgs.msg import Twist2DStamped, BoolStamped, FSMState
+
 #import RPi.GPIO as GPIO #@uncomment
+
 
 class BotCamera(DTROS):
     def __init__(self, node_name):
         super().__init__(node_name, node_type=NodeType.PERCEPTION)
         self.pub = rospy.Publisher("~car_cmd", Twist2DStamped, queue_size=1)
+        self.pub_state = rospy.Publisher("fsm_node/mode", FSMState, queue_size=1, latch=True)
         self.bridge = CvBridge()
         # subscribers
-        self.sub_img = rospy.Subscriber("~image_in", CompressedImage, self.cb_image, queue_size=1, buff_size="100MB")
+        self.sub_img = rospy.Subscriber("~image_in", CompressedImage, self.cb_image, queue_size=1, buff_size="10MB")
         self.sub_start_parking = rospy.Subscriber("~parking_start", BoolStamped, self.parking_start, queue_size=1)
+        self.sub_fsm_mode = rospy.Subscriber("fsm_node/mode", FSMState, self.cbMode, queue_size=1)
         # publishers
 
-        # logik helper
+        # logic helper
+        self.mode = None
         self.bool_start = False
         self.last_command = "None"
         self.back_riding_counter = 0
@@ -31,17 +36,32 @@ class BotCamera(DTROS):
 
         self.is_conected = False
 
-    def parking_start(self, msg):
-        rospy.loginfo("INIT park")
+    # def parking_start(self, msg):
+    #     rospy.loginfo("INIT park")
+    #
+    #     if msg.data == True:
+    #         self.bool_start = True
+    #     elif msg.data == False:
+    #         self.bool_start = False
+    #     else:
+    #         rospy.loginfo("Error of Booltype in topik \'parking_start\'")
 
+    def parking_start(self, msg):
         if msg.data == True:
             self.bool_start = True
+            new_state = FSMState()
+            new_state.state = "PARKING"
+            self.pub_state.publish(new_state)  # set a new state
+
         elif msg.data == False:
             self.bool_start = False
+            new_state = FSMState()
+            new_state.state = "NORMAL_JOYSTICK_CONTROL"
+            self.pub_state.publish(new_state)  # set a default state
         else:
-            rospy.loginfo("Error of Booltype in topik \'parking_start\'")
+            rospy.loginfo("Error in topic \'parking_start\'")
 
-    # @uncomment
+    # # @uncomment
     # def get_connection_status(self):
     #     BUTTON_GPIO = 24
     #     GPIO.setmode(GPIO.BCM)
@@ -52,6 +72,10 @@ class BotCamera(DTROS):
     #         self.message_print(0, 0, "Get connection!")
     #     else:
     #         self.is_conected = False
+
+    def cbMode(self, fsm_state_msg):
+        self.mode = fsm_state_msg.state  # String of the current FSM state
+
     def cb_image(self, msg):
         img = self.bridge.compressed_imgmsg_to_cv2(msg)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
