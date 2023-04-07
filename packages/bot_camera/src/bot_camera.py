@@ -12,7 +12,7 @@ from cv_bridge import CvBridge
 import apriltag  # from dt_apriltags import Detector
 from duckietown_msgs.msg import Twist2DStamped, BoolStamped, FSMState
 
-#import RPi.GPIO as GPIO #@uncomment
+import RPi.GPIO as GPIO #@uncomment
 
 
 class BotCamera(DTROS):
@@ -36,15 +36,15 @@ class BotCamera(DTROS):
 
         self.is_conected = False
 
-    # def parking_start(self, msg):
-    #     rospy.loginfo("INIT park")
-    #
-    #     if msg.data == True:
-    #         self.bool_start = True
-    #     elif msg.data == False:
-    #         self.bool_start = False
-    #     else:
-    #         rospy.loginfo("Error of Booltype in topik \'parking_start\'")
+    def parking_start(self, msg):
+        rospy.loginfo("INIT park")
+
+        if msg.data == True:
+            self.bool_start = True
+        elif msg.data == False:
+            self.bool_start = False
+        else:
+            rospy.loginfo("Error of Booltype in topik \'parking_start\'")
 
     def parking_start(self, msg):
         if msg.data == True:
@@ -61,17 +61,20 @@ class BotCamera(DTROS):
         else:
             rospy.loginfo("Error in topic \'parking_start\'")
 
-    # # @uncomment
-    # def get_connection_status(self):
-    #     BUTTON_GPIO = 24
-    #     GPIO.setmode(GPIO.BCM)
-    #     GPIO.setup(BUTTON_GPIO, GPIO.IN)
-    #     gpio_state = GPIO.input(BUTTON_GPIO)
-    #     if gpio_state:
-    #         self.is_conected = True
-    #         self.message_print(0, 0, "Get connection!")
-    #     else:
-    #         self.is_conected = False
+    # @uncomment
+    def get_connection_status(self):
+        BUTTON_GPIO = 24
+        try:
+            GPIO.setup(BUTTON_GPIO, GPIO.IN)#swap from down
+            GPIO.setmode(GPIO.BCM)        #swap from up
+            gpio_state = GPIO.input(BUTTON_GPIO)
+            if gpio_state:
+                self.is_conected = True
+                self.message_print(0, 0, "Get connection!")
+            else:
+                self.is_conected = False
+        except:
+            rospy.loginfo("Can't check connection")
 
     def cbMode(self, fsm_state_msg):
         self.mode = fsm_state_msg.state  # String of the current FSM state
@@ -80,7 +83,7 @@ class BotCamera(DTROS):
         img = self.bridge.compressed_imgmsg_to_cv2(msg)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         # @uncomment
-        # self.get_conection_status()
+        self.get_connection_status()
         if self.bool_start and not self.is_conected:
             self.marker_detecting(img)
 
