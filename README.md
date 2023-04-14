@@ -9,7 +9,11 @@
 
 `dts devel build -f -H <autobot name> && dts devel run -f -H <autobot name>`
 
-## After cloning the charging driver repository, you need to run the charging driver to create the charge state topic with the command:
+## After cloning the charging driver repository, you need to build the charging driver to create the charge state topic with the command:
+
+`dts devel build -f -H <autobot name>`
+
+## And run charging driver with the command:
 
 `docker -H <autobot name>.local run --name charging_driver -v /dev/mem --privileged --network=host -dit --restart unless-stopped -e ROBOT_TYPE=duckiebot docker.io/duckietown/charging-driver :automatic-charging-arm32v7`
 
