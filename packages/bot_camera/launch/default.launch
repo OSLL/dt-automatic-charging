@@ -14,6 +14,7 @@
          <remap from="bot_camera/connection_status" to="connection_status"/>     
          <remap from="bot_camera/car_cmd" to="lane_controller_node/car_cmd"/>
          <remap from="bot_camera/image_in" to="camera_node/image/compressed"/>
+         <remap from="bot_camera/parking_start" to="parking_start"/>
          <remap from="bot_camera/image_out" to="camera_node/image/test"/>
         <include file="$(find bot_camera)/launch/test.launch">
             <arg name="veh" value="$(arg veh)"/>
