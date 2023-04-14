@@ -1,54 +1,28 @@
-# Template: template-core
+# Parking done
+## In order to run a node you need:
 
-This template provides a boilerplate repository
-for developing ROS-based software in Duckietown.
-Unlike the `template-ros` repository, this template
-builds on top of the module 
-[`dt-core`](https://github.com/duckietown/dt-core).
-This is needed when your application requires access 
-to tools and libraries defined in 
-[`dt-core`](https://github.com/duckietown/dt-core).
+1. have a joystick version that supports charging buttons [`joystick`](https://github.com/AlexanderKamynin/dt-automatic-charging/tree/parking)
 
+2. have a charging driver version [`driver`](https://github.com/OSLL/charging-driver/tree/automatic-charging)
 
-**NOTE:** If you want to develop software that does not use
-ROS, check out [this template](https://github.com/duckietown/template-basic).
+## After cloning the repository, you need to build the project with the command: 
 
+`dts devel build -f -H && dts devel run -f -H`
 
-## How to use it
+## After cloning the charge driver repository, you need to run the charge driver to create the charge state topic with the command:
 
-### 1. Fork this repository
+`docker -H <autobot name>.local run --name charging_driver -v /dev/mem --privileged --network=host -dit --restart unless-stopped -e ROBOT_TYPE=duckiebot docker.io/duckietown/charging-driver :automatic-charging-arm32v7`
 
-Use the fork button in the top-right corner of the github page to fork this template repository.
+## After cloning the joystick repository, you need to build it with the command:
 
+`dts devel build -f -H <autobot name> --tag daffy`
 
-### 2. Create a new repository
+## And run it with the command:
 
-Create a new repository on github.com while
-specifying the newly forked template repository as
-a template for your new repository.
+`dts duckiebot keyboard_control <autobot name>`
 
+## When all nodes (responsible for parking, charging status and joystick) are running, you can start the parking process
 
-### 3. Define dependencies
-
-List the dependencies in the files `dependencies-apt.txt` and
-`dependencies-py3.txt` (apt packages and pip packages respectively).
-
-
-### 4. Place your code
-
-Place your code in the directory `/packages/` of
-your new repository.
-
-
-### 5. Setup launchers
-
-The directory `/launchers` can contain as many launchers (launching scripts)
-as you want. A default launcher called `default.sh` must always be present.
-
-If you create an executable script (i.e., a file with a valid shebang statement)
-a launcher will be created for it. For example, the script file 
-`/launchers/my-launcher.sh` will be available inside the Docker image as the binary
-`dt-launcher-my-launcher`.
-
-When launching a new container, you can simply provide `dt-launcher-my-launcher` as
-command.
+With the joystick active, you need to press the "F" button to start parking or "G" to end it. 
+### Be careful! 
+Due to the peculiarity of ROS, it is not enough to briefly press "F", in this case it is necessary to hold down "F" for 1-2 seconds
