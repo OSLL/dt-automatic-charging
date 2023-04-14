@@ -61,6 +61,9 @@ RUN pip uninstall dt-apriltag
 COPY ./dependencies-py3.txt "${REPO_PATH}/"
 RUN dt-pip3-install ${REPO_PATH}/dependencies-py3.txt
 
+RUN pip install --no-cache-dir rpi.gpio
+# RUN sudo usermod -a -G gpio $USER
+
 
 
 # copy the source code
