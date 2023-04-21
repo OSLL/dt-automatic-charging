@@ -5,10 +5,6 @@
 
 2. have a charging driver version [`driver`](https://github.com/OSLL/charging-driver/tree/automatic-charging)
 
-## After cloning the repository, you need to build the project with the command: 
-
-`dts devel build -f -H <autobot name> && dts devel run -f -H <autobot name>`
-
 ## After cloning the charging driver repository, you need to build the charging driver to create the charge state topic with the command:
 
 `dts devel build -f -H <autobot name>`
@@ -24,6 +20,10 @@
 ## And run it with the command:
 
 `dts duckiebot keyboard_control <autobot name>`
+
+## After cloning this repository, you need to build the project with the command: 
+
+`dts devel build -f -H <autobot name> && dts devel run -f -H <autobot name>`
 
 ## When all nodes (responsible for parking, charging status and joystick) are running, you can start the parking process
 
