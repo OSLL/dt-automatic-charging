@@ -5,11 +5,12 @@ import cv2
 import sys
 import rospy
 import numpy as np
+import math
 import os
 from sensor_msgs.msg import CompressedImage, Image
 from duckietown.dtros import DTROS, DTParam, NodeType, TopicType
 from cv_bridge import CvBridge
-import apriltag  
+import apriltag
 from duckietown_msgs.msg import Twist2DStamped, BoolStamped, FSMState
 
 
@@ -34,6 +35,7 @@ class BotCamera(DTROS):
         self.bool_start = False  # false if press button "J" on joystick and true if press button "F" on joystick
         self.cant_find_counter = 0  # for count how many times we can's tag
         self.is_connected = False  # for checking connection status
+        self.deltaLR = 0
 
     def parking_start(self, msg):
         self.bool_start = msg.data
@@ -66,7 +68,7 @@ class BotCamera(DTROS):
     def marker_detecting(self, in_image):
         options = apriltag.DetectorOptions(families="tag36h11")
         detector = apriltag.Detector(options)
-        gray_img = cv2.cvtColor(in_image, cv2.COLOR_RGB2GRAY)  
+        gray_img = cv2.cvtColor(in_image, cv2.COLOR_RGB2GRAY)
         x_center_image = in_image.shape[1] // 2
         tags = detector.detect(gray_img)
         if len(tags) == 0:
@@ -75,6 +77,19 @@ class BotCamera(DTROS):
         for tag in tags:
             if tag.tag_id == 20:  # there gotta be special value
                 self.message_print(0, 0, "Find marker, stop")
+
+                (topLeft, topRight, bottomRight, bottomLeft) = tag.corners
+
+                topRight = (int(topRight[0]), int(topRight[1]))
+                bottomRight = (int(bottomRight[0]), int(bottomRight[1]))
+                bottomLeft = (int(bottomLeft[0]), int(bottomLeft[1]))
+                topLeft = (int(topLeft[0]), int(topLeft[1]))
+
+                length_left = math.sqrt((bottomLeft[1] - topLeft[1]) ** 2 + (bottomLeft[0] - topLeft[0]) ** 2)
+                length_right = math.sqrt((bottomRight[1] - topRight[1]) ** 2 + (bottomRight[0] - topRight[0]) ** 2)
+                rospy.loginfo(f"length left and right side marker: left {length_left} right {length_right}\n")
+                self.deltaLR = length_left - length_right
+
                 self.cant_find_counter = 0
                 coordinates = tuple(map(int, tag.center))
                 x_center_marker = coordinates[0]
@@ -94,7 +109,11 @@ class BotCamera(DTROS):
             rospy.sleep(0.2)
         elif self.cant_find_counter == 1:
             self.cant_find_counter += 1
-            self.message_print(-0.5, 0, "\tBack riding ahead")
+            # self.message_print(-0.5, 0, "\tBack riding ahead")
+            if self.deltaLR < 0:
+                self.message_print(-1, -0.5, "ahead and left")
+            else:
+                self.message_print(-1, 0.5, "ahead and right")
             rospy.sleep(1)
             self.message_print(0, 0, "Look around time")
             rospy.sleep(0.2)
