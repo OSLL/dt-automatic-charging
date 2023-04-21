@@ -10,7 +10,7 @@ Joystick package have name "automatic-charging" like package of this repository.
 ### Example:
 `mkdir allpr; cd allpr; git clone <this repo>; git clone <driver repo>; mkdir joystick; cd joystick; git clone <joystick repo>`
 
-## After cloning the charging driver repository, you need to it with the command:
+## After cloning the charging driver repository, you need to build it with the command:
 
 `dts devel build -f -H <autobot name>`
 
@@ -20,13 +20,13 @@ Joystick package have name "automatic-charging" like package of this repository.
 
 ## After cloning the joystick repository, you need to build it with the command:
 
-`dts devel build -f -H <autobot name> --tag daffy`
+`dts devel build -f`
 
 ## And run it with the command:
 
-`dts duckiebot keyboard_control <autobot name>`
+`dts duckiebot keyboard_control --gui_image duckietown/dt-automatic-charging <autobot name>`
 
-## After cloning this repository, you need to build the project with the command: 
+## After cloning this repository, you need to build and run the project with the command: 
 
 `dts devel build -f -H <autobot name> && dts devel run -f -H <autobot name>`
 
