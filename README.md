@@ -1,54 +1,37 @@
-# Template: template-core
+# Parking done
+## In order to run a node you need:
 
-This template provides a boilerplate repository
-for developing ROS-based software in Duckietown.
-Unlike the `template-ros` repository, this template
-builds on top of the module 
-[`dt-core`](https://github.com/duckietown/dt-core).
-This is needed when your application requires access 
-to tools and libraries defined in 
-[`dt-core`](https://github.com/duckietown/dt-core).
+1. have a joystick version that supports charging buttons [`joystick`](https://github.com/AlexanderKamynin/dt-automatic-charging/tree/parking)
 
+2. have a charging driver version [`driver`](https://github.com/OSLL/charging-driver/tree/automatic-charging)
 
-**NOTE:** If you want to develop software that does not use
-ROS, check out [this template](https://github.com/duckietown/template-basic).
+### Be careful! 
+Joystick package have name "automatic-charging" like package of this repository. You need to clone this in different directories. 
+### Example:
+`mkdir allpr; cd allpr; git clone <this repo>; git clone <driver repo>; mkdir joystick; cd joystick; git clone <joystick repo>`
 
+## After cloning the charging driver repository, you need to build it with the command:
 
-## How to use it
+`dts devel build -f -H <autobot name>`
 
-### 1. Fork this repository
+## And run charging driver with the command:
 
-Use the fork button in the top-right corner of the github page to fork this template repository.
+`docker -H <autobot name>.local run --name charging_driver -v /dev/mem --privileged --network=host -dit --restart unless-stopped -e ROBOT_TYPE=duckiebot docker.io/duckietown/charging-driver:automatic-charging-arm32v7`
 
+## After cloning the joystick repository, you need to build it with the command:
 
-### 2. Create a new repository
+`dts devel build -f`
 
-Create a new repository on github.com while
-specifying the newly forked template repository as
-a template for your new repository.
+## And run it with the command:
 
+`dts duckiebot keyboard_control --gui_image duckietown/dt-automatic-charging <autobot name>`
 
-### 3. Define dependencies
+## After cloning this repository, you need to build and run the project with the command: 
 
-List the dependencies in the files `dependencies-apt.txt` and
-`dependencies-py3.txt` (apt packages and pip packages respectively).
+`dts devel build -f -H <autobot name> && dts devel run -f -H <autobot name>`
 
+## When all nodes (responsible for parking, charging status and joystick) are running, you can start the parking process
 
-### 4. Place your code
-
-Place your code in the directory `/packages/` of
-your new repository.
-
-
-### 5. Setup launchers
-
-The directory `/launchers` can contain as many launchers (launching scripts)
-as you want. A default launcher called `default.sh` must always be present.
-
-If you create an executable script (i.e., a file with a valid shebang statement)
-a launcher will be created for it. For example, the script file 
-`/launchers/my-launcher.sh` will be available inside the Docker image as the binary
-`dt-launcher-my-launcher`.
-
-When launching a new container, you can simply provide `dt-launcher-my-launcher` as
-command.
+With the active joystick, you need to press the "F" button to start parking or "G" to end it. 
+### Be careful! 
+Due to the peculiarity of ROS, it is not enough to briefly press "F", in this case it is necessary to hold down "F" for 1-2 seconds

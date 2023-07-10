@@ -1,5 +1,5 @@
 # parameters
-ARG REPO_NAME="<dt-automatic-charging>"
+ARG REPO_NAME="dt-core"
 ARG DESCRIPTION="Base image containing common libraries and environment setup for ROS applications."
 ARG MAINTAINER=" ()"
 ARG ICON="cube"
@@ -7,9 +7,9 @@ ARG ICON="cube"
 # ==================================================>
 # ==> Do not change the code below this line
 ARG ARCH=arm64v8
-ARG DISTRO=ente
+ARG DISTRO=daffy
 ARG BASE_TAG=${DISTRO}-${ARCH}
-ARG BASE_IMAGE=dt-ros-commons
+ARG BASE_IMAGE=dt-core
 ARG LAUNCHER=default
 
 # define base image
@@ -26,6 +26,7 @@ ARG ICON
 ARG BASE_TAG
 ARG BASE_IMAGE
 ARG LAUNCHER
+
 
 # check build arguments
 RUN dt-build-env-check "${REPO_NAME}" "${MAINTAINER}" "${DESCRIPTION}"
@@ -46,13 +47,24 @@ ENV DT_REPO_PATH "${REPO_PATH}"
 ENV DT_LAUNCH_PATH "${LAUNCH_PATH}"
 ENV DT_LAUNCHER "${LAUNCHER}"
 
+
+
+# mount dirs
+#COPY /usr/lib/python2.7/dist-packages "${REPO_PATH}/packages"
+
 # install apt dependencies
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F42ED6FBAB17C654
 COPY ./dependencies-apt.txt "${REPO_PATH}/"
 RUN dt-apt-install ${REPO_PATH}/dependencies-apt.txt
 
-# install python3 dependencies
-#COPY ./dependencies-py3.txt "${REPO_PATH}/"
-#RUN dt-pip3-install ${REPO_PATH}/dependencies-py3.txt
+RUN pip uninstall dt-apriltag
+COPY ./dependencies-py3.txt "${REPO_PATH}/"
+RUN dt-pip3-install ${REPO_PATH}/dependencies-py3.txt
+
+RUN pip install --no-cache-dir rpi.gpio
+# RUN sudo usermod -a -G gpio $USER
+
+
 
 # copy the source code
 COPY ./packages "${REPO_PATH}/packages"
